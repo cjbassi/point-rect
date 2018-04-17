@@ -11,19 +11,19 @@ class Point:
 
     """A point identified by (x,y) coordinates.
 
-    supports: +, -, *, /, str, repr
+    supports:       +, -, *, /, str, repr
 
-    length  -- calculate length of vector to point from origin
-    distance_to  -- calculate distance between two points
-    as_tuple  -- construct tuple (x,y)
-    clone  -- construct a duplicate
-    integerize  -- convert x & y to integers
-    floatize  -- convert x & y to floats
-    move_to  -- reset x & y
-    slide  -- move (in place) +dx, +dy, as spec'd by point
-    slide_xy  -- move (in place) +dx, +dy
-    rotate  -- rotate around the origin
-    rotate_about  -- rotate around another point
+    length:         calculate length of vector to point from origin
+    distance_to:    calculate distance between two points
+    as_tuple:       construct tuple (x,y)
+    clone:          construct a duplicate
+    integerize:     convert x & y to integers
+    floatize:       convert x & y to floats
+    move_to:        reset x & y
+    slide:          move (in place) +dx, +dy, as spec'd by point
+    slide_xy:       move (in place) +dx, +dy
+    rotate:         rotate around the origin
+    rotate_about:   rotate around another point
     """
 
     def __init__(self, x=0.0, y=0.0):
@@ -38,12 +38,12 @@ class Point:
         """Point(x1-x2, y1-y2)"""
         return Point(self.x-p.x, self.y-p.y)
 
-    def __mul__( self, scalar ):
-        """Point(x1*x2, y1*y2)"""
+    def __mul__(self, scalar):
+        """Point(x*scalar, y*scalar)"""
         return Point(self.x*scalar, self.y*scalar)
 
     def __div__(self, scalar):
-        """Point(x1/x2, y1/y2)"""
+        """Point(x1/scalar, y1/scalar)"""
         return Point(self.x/scalar, self.y/scalar)
 
     def __str__(self):
@@ -143,12 +143,12 @@ class Rect:
        v                                  |
     y increases                         bottom
 
-    set_points  -- reset rectangle coordinates
-    contains  -- is a point inside?
-    overlaps  -- does a rectangle overlap?
-    top_left  -- get top-left corner
-    bottom_right  -- get bottom-right corner
-    expanded_by  -- grow (or shrink)
+    set_points:     reset rectangle coordinates
+    contains:       is a point inside?
+    overlaps:       does a rectangle overlap?
+    top_left:       get top-left corner
+    bottom_right:   get bottom-right corner
+    expanded_by:    grow (or shrink)
     """
 
     def __init__(self, pt1, pt2):
@@ -166,7 +166,7 @@ class Rect:
 
     def contains(self, pt):
         """Return true if a point is inside the rectangle."""
-        x,y = pt.as_tuple()
+        x, y = pt.as_tuple()
         return (self.left <= x <= self.right and
                 self.top <= y <= self.bottom)
 
