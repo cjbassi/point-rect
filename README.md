@@ -6,5 +6,10 @@ Copied from [here](https://wiki.python.org/moin/PointsAndRectangles), cleaned up
 
 Install with:
 ```
-pip install pointrect
+pip install point-rect
+```
+
+And import with:
+```
+from point_rect import Point, Rect
 ```
