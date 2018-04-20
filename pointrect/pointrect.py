@@ -9,22 +9,7 @@ import math
 
 class Point:
 
-    """A point identified by (x,y) coordinates.
-
-    supports:       +, -, *, /, str, repr
-
-    length:         calculate length of vector to point from origin
-    distance_to:    calculate distance between two points
-    as_tuple:       construct tuple (x,y)
-    clone:          construct a duplicate
-    integerize:     convert x & y to integers
-    floatize:       convert x & y to floats
-    move_to:        reset x & y
-    slide:          move (in place) +dx, +dy, as spec'd by point
-    slide_xy:       move (in place) +dx, +dy
-    rotate:         rotate around the origin
-    rotate_about:   rotate around another point
-    """
+    """A point identified by (x,y) coordinates."""
 
     def __init__(self, x=0.0, y=0.0):
         self.x = x
@@ -38,13 +23,16 @@ class Point:
         """Point(x1-x2, y1-y2)"""
         return Point(self.x-p.x, self.y-p.y)
 
-    def __mul__(self, scalar):
-        """Point(x*scalar, y*scalar)"""
-        return Point(self.x*scalar, self.y*scalar)
+    def __mul__(self, n):
+        """Point(x*n, y*n)"""
+        return Point(self.x*n, self.y*n)
 
-    def __div__(self, scalar):
-        """Point(x1/scalar, y1/scalar)"""
-        return Point(self.x/scalar, self.y/scalar)
+    def __div__(self, n):
+        """Point(x1/n, y1/n)"""
+        return Point(self.x/n, self.y/n)
+
+    def __eq__(self, other):
+        return (self.x == other.x) and (self.y == other.y)
 
     def __str__(self):
         return "(%s, %s)" % (self.x, self.y)
@@ -77,26 +65,18 @@ class Point:
         self.x = float(self.x)
         self.y = float(self.y)
 
-    def move_to(self, x, y):
+    def set(self, x, y):
         """Reset x & y coordinates."""
         self.x = x
         self.y = y
 
-    def slide(self, p):
-        '''Move to new (x+dx,y+dy).
-
-        Can anyone think up a better name for this function?
-        slide? shift? delta? move_by?
-        '''
+    def add(self, p):
+        """Move to Point(x1+x2, y1+y2)."""
         self.x = self.x + p.x
         self.y = self.y + p.y
 
-    def slide_xy(self, dx, dy):
-        '''Move to new (x+dx,y+dy).
-
-        Can anyone think up a better name for this function?
-        slide? shift? delta? move_by?
-        '''
+    def add(self, dx, dy):
+        """Move to Point(x+dx,y+dy)."""
         self.x = self.x + dx
         self.y = self.y + dy
 
@@ -113,7 +93,7 @@ class Point:
         """
         s, c = [f(rad) for f in (math.sin, math.cos)]
         x, y = (c*self.x - s*self.y, s*self.x + c*self.y)
-        return Point(x,y)
+        return Point(x, y)
 
     def rotate_about(self, p, theta):
         """Rotate counter-clockwise around a point, by theta degrees.
@@ -131,71 +111,65 @@ class Point:
 
 class Rect:
 
-    """A rectangle identified by two points.
+    """A rectangle identified by two points (min and max).
 
-    The rectangle stores left, top, right, and bottom values.
-
-    Coordinates are based on screen coordinates.
-
-    origin                               top
+    origin                         min   top
        +-----> x increases                |
        |                           left  -+-  right
        v                                  |
-    y increases                         bottom
-
-    set_points:     reset rectangle coordinates
-    contains:       is a point inside?
-    overlaps:       does a rectangle overlap?
-    top_left:       get top-left corner
-    bottom_right:   get bottom-right corner
-    expanded_by:    grow (or shrink)
+    y increases                         bottom  max
     """
 
-    def __init__(self, pt1, pt2):
+    def __init__(self, p1=Point(), p2=Point()):
         """Initialize a rectangle from two points."""
-        self.set_points(pt1, pt2)
+        self.set_points(p1, p2)
 
-    def set_points(self, pt1, pt2):
-        """Reset the rectangle coordinates."""
-        (x1, y1) = pt1.as_tuple()
-        (x2, y2) = pt2.as_tuple()
-        self.left = min(x1, x2)
-        self.top = min(y1, y2)
-        self.right = max(x1, x2)
-        self.bottom = max(y1, y2)
+    def __eq__(self, other):
+        return (self.min == other.min) and (self.max == other.max)
 
-    def contains(self, pt):
+    def __iter__(self):
+        """Yields all integer points in the rectangle."""
+        for y in range(int(self.min.y), int(self.max.y)+1):
+            for x in range(int(self.min.x), int(self.max.x)+1):
+                yield Point(x, y)
+
+    def __contains__(self, p):
+        return self.contains(p)
+
+    def set_points(self, p1, p2):
+        """Set the rectangle coordinates."""
+        self.min = p1
+        self.max = p2
+
+    def contains(self, p):
         """Return true if a point is inside the rectangle."""
-        x, y = pt.as_tuple()
-        return (self.left <= x <= self.right and
-                self.top <= y <= self.bottom)
+        return (self.min.x <= p.x <= self.max.x and
+                self.min.y <= p.y <= self.max.y)
 
     def overlaps(self, other):
         """Return true if a rectangle overlaps this rectangle."""
-        return (self.right > other.left and self.left < other.right and
-                self.top < other.bottom and self.bottom > other.top)
-
-    def top_left(self):
-        """Return the top-left corner as a Point."""
-        return Point(self.left, self.top)
-
-    def bottom_right(self):
-        """Return the bottom-right corner as a Point."""
-        return Point(self.right, self.bottom)
+        return (self.max.x > other.min.x and self.min.x < other.max.x and
+                self.min.y < other.max.y and self.max.y > other.min.y)
 
     def expanded_by(self, n):
         """Return a rectangle with extended borders.
 
         Create a new rectangle that is wider and taller than the
-        immediate one. All sides are extended by "n" points.
+        immediate one. All sides are extended by 'n' points.
         """
-        p1 = Point(self.left-n, self.top-n)
-        p2 = Point(self.right+n, self.bottom+n)
+        p1 = Point(self.min.x-n, self.min.y-n)
+        p2 = Point(self.max.x+n, self.max.y+n)
         return Rect(p1, p2)
 
-    def __str__( self ):
-        return "<Rect (%s,%s)-(%s,%s)>" % (self.left,self.top,
-                                           self.right,self.bottom)
+    def shift_by(self, dx, dy):
+        """Return a rectangle that is shifted by dx and dy."""
+        p1 = Point(self.min.x+dx, self.min.y+dy)
+        p2 = Point(self.max.x+dx, self.max.y+dy)
+        return Rect(p1, p2)
+
+    def __str__(self):
+        return "<Rect (%s,%s)-(%s,%s)>" % (self.left, self.top,
+                                           self.right, self.bottom)
 
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__,

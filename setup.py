@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pointrect',
-    version='1.0.3',
+    version='2.0.0',
     description='A pair of classes to provide points and rectangles',
     url='https://github.com/cjbassi/point-rect',
     keywords='rectangle rectangles rect rects point points',
